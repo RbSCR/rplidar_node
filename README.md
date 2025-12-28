@@ -8,8 +8,6 @@ Uses the 'rplidar_sdk_ros2' package, which provides the public SDK of RPLIDAR pr
 
 ## Run rplidar_node
 
-### Run rplidar node
-
 ```bash
 ros2 run rplidar_node rplidar_node [parameters ...]
 ```
@@ -20,7 +18,7 @@ Or with the launch-file (for a RPLIDAR C1):
 ros2 launch rplidar_node rplidar_c1_launch.py
 ```
 
-### View output in rviz
+## View output in rviz
 
 To view the output in RVIZ:
 
