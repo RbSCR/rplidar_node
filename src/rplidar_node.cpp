@@ -452,7 +452,7 @@ public:
     }
 
     scan_pub = this->create_publisher<sensor_msgs::msg::LaserScan>
-                      (topic_name, rclcpp::QoS(rclcpp::KeepLast(10)));
+                      (topic_name, rclcpp::SensorDataQoS());
 
     stop_motor_service = this->create_service<std_srvs::srv::Empty>("stop_motor",
                                     std::bind(&RPlidarNode::stop_motor,
