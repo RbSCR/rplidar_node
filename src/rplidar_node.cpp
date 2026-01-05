@@ -68,43 +68,95 @@ public:
   }
 
 private:
-  void init_param()
+  void declare_parameters()
   {
-    this->declare_parameter<std::string>("channel_type", "serial");
-    this->declare_parameter<std::string>("tcp_ip", "192.168.0.7");
-    this->declare_parameter<int>("tcp_port", 20108);
-    this->declare_parameter<std::string>("udp_ip", "192.168.11.2");
-    this->declare_parameter<int>("udp_port", 8089);
-    this->declare_parameter<std::string>("serial_port", "/dev/ttyUSB0");
-    this->declare_parameter<int>("serial_baudrate", 460800);  // default for C1
-    this->declare_parameter<std::string>("frame_id", "laser_frame");
-    this->declare_parameter<bool>("inverted", false);
-    this->declare_parameter<bool>("angle_compensate", false);
-    this->declare_parameter<bool>("flip_x_axis", false);
-    this->declare_parameter<bool>("auto_standby", false);
-    this->declare_parameter<std::string>("topic_name", std::string("scan"));
-    this->declare_parameter<std::string>("scan_mode", std::string());
-    this->declare_parameter<float>("scan_frequency", 10.0);
+    auto param_desc_channel_type = rcl_interfaces::msg::ParameterDescriptor{};
+    param_desc_channel_type.description = "Specifying channel type of the lidar.";
+    this->declare_parameter<std::string>("channel_type", "serial", param_desc_channel_type);
 
-    this->get_parameter_or<std::string>("channel_type", channel_type, "serial");
-    this->get_parameter_or<std::string>("tcp_ip", tcp_ip, "192.168.0.7");
-    this->get_parameter_or<int>("tcp_port", tcp_port, 20108);
-    this->get_parameter_or<std::string>("udp_ip", udp_ip, "192.168.11.2");
-    this->get_parameter_or<int>("udp_port", udp_port, 8089);
-    this->get_parameter_or<std::string>("serial_port", serial_port, "/dev/ttyUSB0");
-    this->get_parameter_or<int>("serial_baudrate", serial_baudrate, 46080);
-    // default baudrate for C3, see datasheets for other types
-    this->get_parameter_or<std::string>("frame_id", frame_id, "laser_frame");
-    this->get_parameter_or<bool>("inverted", inverted, false);
-    this->get_parameter_or<bool>("angle_compensate", angle_compensate, false);
-    this->get_parameter_or<bool>("flip_x_axis", flip_x_axis, false);
-    this->get_parameter_or<bool>("auto_standby", auto_standby, false);
-    this->get_parameter_or<std::string>("topic_name", topic_name, "scan");
+    auto param_desc_tcp_ip = rcl_interfaces::msg::ParameterDescriptor{};
+    param_desc_tcp_ip.description = "Specifying tcp ip to the connected lidar.";
+    this->declare_parameter<std::string>("tcp_ip", "192.168.0.7", param_desc_tcp_ip);
+
+    auto param_desc_tcp_port = rcl_interfaces::msg::ParameterDescriptor{};
+    param_desc_tcp_port.description = "Specifying tcp port to the connected lidar.";
+    this->declare_parameter<int>("tcp_port", 20108, param_desc_tcp_port);
+
+    auto param_desc_udp_ip = rcl_interfaces::msg::ParameterDescriptor{};
+    param_desc_udp_ip.description = "Specifying udp ip to the connected lidar.";
+    this->declare_parameter<std::string>("udp_ip", "192.168.11.2", param_desc_udp_ip);
+
+    auto param_desc_udp_port = rcl_interfaces::msg::ParameterDescriptor{};
+    param_desc_udp_port.description = "Specifying udp port to the connected lidar.";
+    this->declare_parameter<int>("udp_port", 8089, param_desc_udp_port);
+
+    auto param_desc_serial_port = rcl_interfaces::msg::ParameterDescriptor{};
+    param_desc_serial_port.description = "Specifying usb port to the connected lidar.";
+    this->declare_parameter<std::string>("serial_port", "/dev/ttyUSB0", param_desc_serial_port);
+
+    auto param_desc_serial_baudrate = rcl_interfaces::msg::ParameterDescriptor{};
+    param_desc_serial_baudrate.description = "Specifying usb port baudrate to the connected lidar.";
+    this->declare_parameter<int>("serial_baudrate", 460800, param_desc_serial_baudrate);
+    // default for C1, see datasheet for other RPLIDAR models
+
+    auto param_desc_frame_id = rcl_interfaces::msg::ParameterDescriptor{};
+    param_desc_frame_id.description = "Specifying frame_id of lidar.";
+    this->declare_parameter<std::string>("frame_id", "laser_frame", param_desc_frame_id);
+
+    auto param_desc_inverted = rcl_interfaces::msg::ParameterDescriptor{};
+    param_desc_inverted.description = "Specifying whether or not to invert scan data.";
+    this->declare_parameter<bool>("inverted", false, param_desc_inverted);
+
+    auto param_desc_angle_compensate = rcl_interfaces::msg::ParameterDescriptor{};
+    param_desc_angle_compensate.description =
+        "Specifying whether or not to enable angle_compensate of the scan data.";
+    this->declare_parameter<bool>("angle_compensate", false, param_desc_angle_compensate);
+
+    auto param_desc_flip_x_axis = rcl_interfaces::msg::ParameterDescriptor{};
+    param_desc_flip_x_axis.description = "Specifying if the X axis should be flipped.";
+    this->declare_parameter<bool>("flip_x_axis", false, param_desc_flip_x_axis);
+
+    auto param_desc_auto_standby = rcl_interfaces::msg::ParameterDescriptor{};
+    param_desc_auto_standby.description = "Specify wether to switch to standby mode. ";
+    param_desc_auto_standby.description.append("In standby start and stop services are disabled.");
+    this->declare_parameter<bool>("auto_standby", false, param_desc_auto_standby);
+
+    auto param_desc_topic_name = rcl_interfaces::msg::ParameterDescriptor{};
+    param_desc_topic_name.description = "Specifying the topic name of the LaserScan message.";
+    this->declare_parameter<std::string>("topic_name", "scan", param_desc_topic_name);
+
+    auto param_desc_scan_mode = rcl_interfaces::msg::ParameterDescriptor{};
+    param_desc_scan_mode.description = "Specifying scan mode of the lidar.";
+    this->declare_parameter<std::string>("scan_mode", "Standard", param_desc_scan_mode);
+    // default for C1, see datasheet for other RPLIDAR models
+
+    auto param_desc_scan_frequency = rcl_interfaces::msg::ParameterDescriptor{};
+    param_desc_scan_frequency.description =
+        "Specifying scan frequency of the lidar (range 8.0 - 12.0 Hz).";
+    this->declare_parameter<float>("scan_frequency", 10.0, param_desc_scan_frequency);
+    // default for C1, see datasheet for other RPLIDAR models
+  }
+
+  void get_parameters()
+  {
+    this->get_parameter("channel_type", channel_type);
+    this->get_parameter("tcp_ip", tcp_ip);
+    this->get_parameter("tcp_port", tcp_port);
+    this->get_parameter("udp_ip", udp_ip);
+    this->get_parameter("udp_port", udp_port);
+    this->get_parameter("serial_port", serial_port);
+    this->get_parameter("serial_baudrate", serial_baudrate);
+    this->get_parameter("frame_id", frame_id);
+    this->get_parameter("inverted", inverted);
+    this->get_parameter("angle_compensate", angle_compensate);
+    this->get_parameter("flip_x_axis", flip_x_axis);
+    this->get_parameter("auto_standby", auto_standby);
+    this->get_parameter("topic_name", topic_name);
     this->get_parameter_or<std::string>("scan_mode", scan_mode, std::string());
     if(channel_type == "udp")
         this->get_parameter_or<float>("scan_frequency", scan_frequency, 20.0);
     else
-            this->get_parameter_or<float>("scan_frequency", scan_frequency, 10.0);
+        this->get_parameter_or<float>("scan_frequency", scan_frequency, 10.0);
   }
 
   bool getRPLIDARDeviceInfo(ILidarDriver * drv)
@@ -272,8 +324,7 @@ private:
       else
         scan_msg->ranges[apply_index] = read_value;
 
-      scan_msg->intensities[apply_index] =
-      static_cast<float>(nodes[apply_index].quality >> 2);
+      scan_msg->intensities[apply_index] = static_cast<float>(nodes[apply_index].quality >> 2);
     }
 
     pub->publish(*scan_msg);
@@ -378,7 +429,9 @@ private:
 public:
   int work_loop()
   {
-    init_param();
+    declare_parameters();
+    get_parameters();
+
     int v_major = SL_LIDAR_SDK_VERSION_MAJOR;
     int v_minor = SL_LIDAR_SDK_VERSION_MINOR;
     int v_patch = SL_LIDAR_SDK_VERSION_PATCH;
@@ -591,18 +644,19 @@ private:
   std::string udp_ip;
   std::string serial_port;
   std::string topic_name;
-  int tcp_port = 20108;
-  int udp_port = 8089;
-  int serial_baudrate = 115200;
+  int tcp_port;
+  int udp_port;
+  int serial_baudrate;
   std::string frame_id;
   bool inverted = false;
   bool angle_compensate = true;
-  bool flip_x_axis = false;
   bool auto_standby = false;
-  float max_distance = 8.0;
+  bool flip_x_axis = false;
   size_t angle_compensate_multiple = 1;  // it stand of angle compensate at per 1 degree
   std::string scan_mode;
   float scan_frequency;
+
+  float max_distance = 8.0;
   /* State */
   bool is_scanning = false;
 
