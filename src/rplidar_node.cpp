@@ -45,13 +45,13 @@
 #define _countof(_Array) static_cast<int>(sizeof(_Array) / sizeof(_Array[0]))
 #endif
 
-#define DEG2RAD(x) ((x)*M_PI/180.)
+#define DEG2RAD(x) ((x) * M_PI / 180.)
 
-
-enum {
-    LIDAR_A_SERIES_MINUM_MAJOR_ID   = 0,
-    LIDAR_S_SERIES_MINUM_MAJOR_ID   = 5,
-    LIDAR_T_SERIES_MINUM_MAJOR_ID   = 8,
+enum
+{
+  LIDAR_A_SERIES_MINUM_MAJOR_ID   = 0,
+  LIDAR_S_SERIES_MINUM_MAJOR_ID   = 5,
+  LIDAR_T_SERIES_MINUM_MAJOR_ID   = 8,
 };
 
 using namespace sl;  // NOLINT(*)
@@ -61,8 +61,8 @@ bool need_exit = false;
 class RPlidarNode : public rclcpp::Node
 {
 public:
-  explicit RPlidarNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions())
-    : Node("rplidar_node", options)
+  explicit RPlidarNode(const rclcpp::NodeOptions & options = rclcpp::NodeOptions())
+  : Node("rplidar_node", options)
   {
   /* */
   }
@@ -109,7 +109,7 @@ private:
 
     auto param_desc_angle_compensate = rcl_interfaces::msg::ParameterDescriptor{};
     param_desc_angle_compensate.description =
-        "Specifying whether or not to enable angle_compensate of the scan data.";
+      "Specifying whether or not to enable angle_compensate of the scan data.";
     this->declare_parameter<bool>("angle_compensate", false, param_desc_angle_compensate);
 
     auto param_desc_flip_x_axis = rcl_interfaces::msg::ParameterDescriptor{};
@@ -132,7 +132,7 @@ private:
 
     auto param_desc_scan_frequency = rcl_interfaces::msg::ParameterDescriptor{};
     param_desc_scan_frequency.description =
-        "Specifying scan frequency of the lidar (range 8.0 - 12.0 Hz).";
+      "Specifying scan frequency of the lidar (range 8.0 - 12.0 Hz).";
     this->declare_parameter<float>("scan_frequency", 10.0, param_desc_scan_frequency);
     // default for C1, see datasheet for other RPLIDAR models
   }
@@ -153,10 +153,11 @@ private:
     this->get_parameter("auto_standby", auto_standby);
     this->get_parameter("topic_name", topic_name);
     this->get_parameter_or<std::string>("scan_mode", scan_mode, std::string());
-    if(channel_type == "udp")
-        this->get_parameter_or<float>("scan_frequency", scan_frequency, 20.0);
-    else
-        this->get_parameter_or<float>("scan_frequency", scan_frequency, 10.0);
+    if(channel_type == "udp") {
+      this->get_parameter_or<float>("scan_frequency", scan_frequency, 20.0);
+    } else {
+      this->get_parameter_or<float>("scan_frequency", scan_frequency, 10.0);
+    }
   }
 
   bool getRPLIDARDeviceInfo(ILidarDriver * drv)
@@ -173,12 +174,12 @@ private:
         RCLCPP_ERROR(this->get_logger(),
                     "Error, unexpected error, code: %x", op_result);
       }
-        return false;
+      return false;
     }
 
     // print out the device info
     char sn_str[37] = {'\0'};
-    for (int pos = 0; pos < 16 ;++pos) {
+    for (int pos = 0; pos < 16 ; ++pos) {
       snprintf(sn_str + (pos * 2), 3, "%02X", devinfo.serialnum[pos]);  // NOLINT(*)
       // NOLINT to prevent in cpplint:
       //    "If you can, use sizeof(sn_str + (pos * 2)) instead of 3 as the 2nd arg to snprintf.""
@@ -208,16 +209,16 @@ private:
           RCLCPP_INFO(this->get_logger(), "RPLidar health status : OK.");
           return true;
 
-          case SL_LIDAR_STATUS_WARNING:
+        case SL_LIDAR_STATUS_WARNING:
           RCLCPP_INFO(this->get_logger(), "RPLidar health status : Warning.");
           return true;
 
-          case SL_LIDAR_STATUS_ERROR:
+        case SL_LIDAR_STATUS_ERROR:
           RCLCPP_ERROR(this->get_logger(),
             "Error, RPLidar internal error detected. Please reboot the device to retry.");
           return false;
 
-          default:
+        default:
           RCLCPP_ERROR(this->get_logger(),
               "Error, Unknown internal error detected. Please reboot the device to retry.");
           return false;
@@ -293,10 +294,10 @@ private:
       scan_msg->angle_max =  M_PI - angle_max;
     }
     scan_msg->angle_increment = (scan_msg->angle_max - scan_msg->angle_min)
-                                    / static_cast<double>(node_count-1);
+                                    / static_cast<double>(node_count - 1);
 
     scan_msg->scan_time = scan_time;
-    scan_msg->time_increment = scan_time / static_cast<double>(node_count-1);
+    scan_msg->time_increment = scan_time / static_cast<double>(node_count - 1);
     scan_msg->range_min = 0.15;
     scan_msg->range_max = max_distance;  // 8.0;
 
@@ -319,18 +320,19 @@ private:
         }
       }
 
-      if (read_value == 0.0)
+      if (read_value == 0.0) {
         scan_msg->ranges[apply_index] = std::numeric_limits<float>::infinity();
-      else
+      } else {
         scan_msg->ranges[apply_index] = read_value;
-
+      }
       scan_msg->intensities[apply_index] = static_cast<float>(nodes[apply_index].quality >> 2);
     }
 
     pub->publish(*scan_msg);
   }
 
-  bool set_scan_mode() {
+  bool set_scan_mode()
+  {
     sl_result     op_result;
     LidarScanMode current_scan_mode;
     if (scan_mode.empty()) {
@@ -405,11 +407,11 @@ private:
 
     RCLCPP_INFO(this->get_logger(), "Starting scan");
     drv->setMotorSpeed();
-      if (!set_scan_mode()) {
-        this->stop();
-        RCLCPP_ERROR(this->get_logger(), "Failed to set scan mode");
-        return false;
-      }
+    if (!set_scan_mode()) {
+      this->stop();
+      RCLCPP_ERROR(this->get_logger(), "Failed to set scan mode");
+      return false;
+    }
     is_scanning = true;
     return true;
   }
@@ -447,7 +449,7 @@ public:
       return -1;
     }
 
-    IChannel* _channel;
+    IChannel * _channel;
     if(channel_type == "tcp") {
       _channel = *createTcpChannel(tcp_ip, tcp_port);
     } else if(channel_type == "udp") {
@@ -489,13 +491,13 @@ public:
     op_result = drv->getDeviceInfo(devinfo);
     bool scan_frequency_tunning_after_scan = false;
 
-    if( (devinfo.model>>4) > LIDAR_S_SERIES_MINUM_MAJOR_ID){
+    if( (devinfo.model>>4) > LIDAR_S_SERIES_MINUM_MAJOR_ID) {
             scan_frequency_tunning_after_scan = true;
     }
 
     if(!scan_frequency_tunning_after_scan) {  // for RPLIDAR A serials
       // start RPLIDAR A serials  rotate by pwm
-        drv->setMotorSpeed(600);
+      drv->setMotorSpeed(600);
     }
 
         /* start motor and scanning */
@@ -532,9 +534,9 @@ public:
         if (scan_pub->get_subscription_count() > 0 && !is_scanning) {
           this->start();
         } else if (scan_pub->get_subscription_count() == 0) {
-            if (is_scanning) {
-              this->stop();
-            }
+          if (is_scanning) {
+            this->stop();
+          }
         }
       }
 
@@ -665,8 +667,8 @@ private:
 
 void ExitHandler(int sig)
 {
-    (void)sig;
-    need_exit = true;
+  (void)sig;
+  need_exit = true;
 }
 
 
