@@ -16,12 +16,11 @@ find_package(rplidar_sdk_ros2 REQUIRED)
 add_executable(rplidar_node src/rplidar_node.cpp)
 target_include_directories(rplidar_node PRIVATE include)
 target_compile_features(rplidar_node PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
-target_link_libraries(rplidar_node rplidar_sdk_ros2::rplidar_sdk)
-ament_target_dependencies(rplidar_node
-  "rplidar_sdk_ros2"
-  "rclcpp"
-  "sensor_msgs"
-  "std_srvs"
+target_link_libraries(rplidar_node PRIVATE
+  rplidar_sdk_ros2::rplidar_sdk
+  ${rclcpp_TARGETS}
+  ${sensor_msgs_TARGETS}
+  ${std_srvs_TARGETS}
 )
 install(TARGETS rplidar_node
   DESTINATION lib/${PROJECT_NAME})
