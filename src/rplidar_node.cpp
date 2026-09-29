@@ -37,7 +37,13 @@
 
 #include <signal.h>
 
-#include "rclcpp/rclcpp.hpp"
+#include "rclcpp/logging.hpp"
+#include "rclcpp/node.hpp"
+#include "rclcpp/executors.hpp"
+#include "rclcpp/parameter_client.hpp"
+#include "rclcpp/parameter_event_handler.hpp"
+#include "rclcpp/parameter.hpp"
+
 #include "sensor_msgs/msg/laser_scan.hpp"
 #include "std_srvs/srv/empty.hpp"
 
